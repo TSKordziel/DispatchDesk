@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:16
+    container_name: dispatchdesk_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: dispatchdesk
+      POSTGRES_PASSWORD: dispatchdesk
+      POSTGRES_DB: dispatchdesk
+    ports:
+      - "5432:5432"
+    volumes:
+      - dispatchdesk_pgdata:/var/lib/postgresql/data
+
+volumes:
+  dispatchdesk_pgdata:
