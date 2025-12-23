@@ -1,6 +1,7 @@
-import os
-from fastapi import FastAPI
-import psycopg
+from fastapi import FastAPI, Depends
+from sqlalchemy import text
+from sqlalchemy.orm import Session
+from app.core.deps import get_db
 
 app = FastAPI(title="DispatchDesk API", version="0.1.0")
 
@@ -14,16 +15,9 @@ def root():
     }
 
 @app.get("/health")
-def health():
-    db_url = os.getenv("DATABASE_URL")
-    if not db_url:
-        return {"status": "ok", "db": "down", "detail": "DATABASE_URL not set"}
-    
+def health(db: Session = Depends(get_db)):
     try:
-        with psycopg.connect(db_url) as conn:
-            with conn.cursor() as cur:
-                cur.execute("SELECT 1;")
-                cur.fetchone()
+        db.execute(text("SELECT 1"))
         return {"status": "ok", "db": "ok"}
     except Exception as e:
         return {"status": "ok", "db": "down", "detail": str(e)}
