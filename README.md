@@ -63,10 +63,10 @@ No production features are available yet.
 
 ### Phase 1 — Foundation
 - [x] Project structure & configuration
-- [/] Database schema design
-- [/] SQLAlchemy models
+- [ ] Database schema design -> STARTED
+- [ ] SQLAlchemy models -> STARTED
 - [x] Alembic migration setup
-- [/] Basic CRUD for core entities
+- [ ] Basic CRUD for core entities -> STARTED
 
 ### Phase 2 — Core API
 - [ ] Ticket creation & lifecycle
