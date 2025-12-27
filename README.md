@@ -62,11 +62,11 @@ No production features are available yet.
 ## Planned Roadmap
 
 ### Phase 1 — Foundation
-- [ ] Project structure & configuration
-- [ ] Database schema design
-- [ ] SQLAlchemy models
-- [ ] Alembic migration setup
-- [ ] Basic CRUD for core entities
+- [x] Project structure & configuration
+- [/] Database schema design
+- [/] SQLAlchemy models
+- [x] Alembic migration setup
+- [/] Basic CRUD for core entities
 
 ### Phase 2 — Core API
 - [ ] Ticket creation & lifecycle
