@@ -11,9 +11,7 @@
         "--reload"
       ],
       "cwd": "${workspaceFolder}",
-      "env": {
-        "DATABASE_URL": "postgresql://dispatchdesk:dispatchdesk@localhost:5432/dispatchdesk"
-      },
+      "envFile": "${workspaceFolder}/.env",
       "console": "integratedTerminal"
     }
   ]
