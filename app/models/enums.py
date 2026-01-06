@@ -1,6 +1,6 @@
 from enum import Enum
 
-
+# Ticket Enums:
 class TicketStatus(str, Enum):
     new = "new"
     triaged = "triaged"
@@ -14,3 +14,9 @@ class TicketPriority(str, Enum):
     med = "med"
     high = "high"
     urgent = "urgent"
+
+# User Enums:
+class UserRole(str, Enum):
+    requester = "requester"
+    agent = "agent"
+    admin = "admin"

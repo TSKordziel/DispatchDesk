@@ -5,12 +5,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
-
-
-class UserRole(str, enum.Enum):
-    requester = "requester"
-    agent = "agent"
-    admin = "admin"
+from app.models.enums import UserRole
 
 
 class User(Base):

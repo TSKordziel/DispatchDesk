@@ -6,6 +6,8 @@ from sqlalchemy.orm import Session
 from app.core.deps import get_db
 from app.core.auth import get_current_user
 from app.models.ticket import Ticket
+from app.models.enums import UserRole
+
 from app.schemas.ticket import TicketCreate, TicketOut
 
 router = APIRouter(prefix="/tickets", tags=["tickets"])
@@ -39,7 +41,7 @@ def get_ticket(
         raise HTTPException(status_code=404, detail="Ticket not found")
 
     # Enforce requester ownership
-    if ticket.created_by_id != current_user.id:
+    if current_user.role == UserRole.requester and ticket.created_by_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized to view this ticket")
 
     return ticket
@@ -53,11 +55,13 @@ def list_tickets(
 ):
     stmt = (
         select(Ticket)
-        .where(Ticket.created_by_id == current_user.id)
         .order_by(Ticket.created_at.desc())
         .limit(limit)
         .offset(offset)
     )
+
+    if current_user.role == UserRole.requester:
+        stmt = stmt.where(Ticket.created_by_id == current_user.id)
 
     tickets = db.execute(stmt).scalars().all()
     return tickets
