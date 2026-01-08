@@ -12,5 +12,16 @@ services:
     volumes:
       - dispatchdesk_pgdata:/var/lib/postgresql/data
 
+  api:
+    build: .
+    depends_on:
+      - db
+    environment:
+      PORT: 8000
+      DATABASE_URL: postgresql+psycopg2://dispatchdesk:dispatchdesk@db:5432/dispatchdesk
+      JWT_SECRET: change_me_local
+    ports:
+      - "8000:8000"
+
 volumes:
   dispatchdesk_pgdata:

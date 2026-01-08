@@ -20,7 +20,10 @@ def get_database_url() -> str:
     if not url:
         raise RuntimeError("DATABASE_URL is not set for Alembic migrations")
     if url.startswith("postgresql://"):
-        url = url.replace("postgresql://", "postgresql+psycopg://", 1)
+        url = url.replace("postgresql://", "postgresql+psycopg2://", 1)
+    elif url.startswith("postgres://"):
+        # some providers use 'postgres://'
+        url = url.replace("postgres://", "postgresql+psycopg2://", 1)
     return url
 
 config.set_main_option("sqlalchemy.url", get_database_url())
