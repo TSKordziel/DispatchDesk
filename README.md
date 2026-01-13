@@ -57,6 +57,18 @@ This repository currently contains the **backend service only**. A front end may
 The repository was recently created and is actively being structured.  
 No production features are available yet.
 
+### Deployment
+
+DispatchDesk is deployed as a Dockerized FastAPI service on Render [DispatchDesk](https://dispatchdesk.onrender.com).
+
+- The API is built from a Dockerfile
+- Database migrations are applied automatically on startup via Alembic
+- Configuration is provided entirely through environment variables
+- A managed PostgreSQL instance is used in production
+
+Local development uses docker-compose to run the API and Postgres together.
+
+
 ---
 
 ## Planned Roadmap
