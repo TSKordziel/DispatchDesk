@@ -52,10 +52,9 @@ This repository currently contains the **backend service only**. A front end may
 
 ## Current Status
 
-🚧 **In Progress — Early Scaffold Phase**
+🚧 **In Progress — MVP LIVE on Render**
 
-The repository was recently created and is actively being structured.  
-No production features are available yet.
+The main branch is now live on Render (see link bellow). New workflow features are being develped on week-4-workflows.
 
 ### Deployment
 
