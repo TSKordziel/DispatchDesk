@@ -1,6 +1,5 @@
-import enum
 import uuid
-from sqlalchemy import String, Boolean
+from sqlalchemy import String, Boolean, Enum as SAEnum
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -37,7 +36,7 @@ class User(Base):
         # Using SAEnum below:
         #
         # (kept inline to avoid extra import clutter)
-        __import__("sqlalchemy").Enum(UserRole, name="user_role"),
+         SAEnum(UserRole, name="user_role"),
         nullable=False,
         default=UserRole.requester,
     )

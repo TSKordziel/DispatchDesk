@@ -11,7 +11,7 @@ from app.schemas.user import UserCreate, UserOut
 from app.schemas.auth import TokenPair
 from app.crud.user import get_user_by_email, create_user
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter()
 
 @router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
 def register(payload: UserCreate, db: Session = Depends(get_db)):

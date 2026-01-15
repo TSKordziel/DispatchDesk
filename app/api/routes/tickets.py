@@ -10,7 +10,7 @@ from app.models.enums import UserRole
 
 from app.schemas.ticket import TicketCreate, TicketOut
 
-router = APIRouter(prefix="/tickets", tags=["tickets"])
+router = APIRouter()
 
 
 @router.post("", response_model=TicketOut, status_code=status.HTTP_201_CREATED)
