@@ -1,7 +1,14 @@
+import os
+
 from fastapi import FastAPI, Depends
 from sqlalchemy import text
 from sqlalchemy.orm import Session
+
 from app.core.deps import get_db
+from app.core.bootstrap import ensure_bootstrap_admin
+
+from app.db.session import SessionLocal
+
 from app.api.router import api_router
 #from app.api.auth import router as auth_router
 #from app.api.tickets import router as tickets_router
@@ -12,6 +19,18 @@ app.include_router(api_router)
 
 #app.include_router(auth_router)
 #app.include_router(tickets_router)
+
+@app.on_event("startup")
+def bootstrap():
+    email = os.getenv("BOOTSTRAP_ADMIN_EMAIL")
+    password = os.getenv("BOOTSTRAP_ADMIN_PASSWORD")
+    if not email or not password:
+        return
+    db = SessionLocal()
+    try:
+        ensure_bootstrap_admin(db, email, password)
+    finally:
+        db.close()
 
 @app.get("/")
 def root():

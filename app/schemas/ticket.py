@@ -24,3 +24,9 @@ class TicketOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+class TicketAssignRequest(BaseModel):
+    assignee_id: uuid.UUID
+
+class TicketTransitionRequest(BaseModel):
+    to_status: TicketStatus
