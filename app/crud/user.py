@@ -26,5 +26,5 @@ def create_user(db: Session, *, email: str, password_hash: str, role: UserRole =
     return user
 
 def has_any_users(db: Session) -> bool:
-    stmt = select(func.count()).select_from(User)
-    return db.execute(stmt).scalar_one() > 0
+    statement = select(func.count()).select_from(User)
+    return db.execute(statement).scalar_one() > 0
