@@ -8,6 +8,9 @@ from alembic import context
 import sys
 from pathlib import Path
 
+from dotenv import load_dotenv
+load_dotenv()
+
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 # this is the Alembic Config object, which provides
@@ -39,7 +42,7 @@ if config.config_file_name is not None:
 # target_metadata = mymodel.Base.metadata
 from app.db.base import Base
 
-import app.models  # noqa: F401
+# import app.models  # noqa: F401
 
 target_metadata = Base.metadata
 
