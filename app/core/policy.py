@@ -29,3 +29,7 @@ def apply_transition(ticket: Ticket, to_status: TicketStatus) -> None:
     ticket.status = to_status
     if to_status == TicketStatus.done:
         ticket.closed_at = datetime.now(timezone.utc)
+
+def can_comment_on_ticket(user: User, ticket: Ticket) -> bool:
+    # Same rule as view: requester only their own; agent/admin any
+    return can_view_ticket(user, ticket)
