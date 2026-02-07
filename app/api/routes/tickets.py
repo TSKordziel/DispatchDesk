@@ -11,8 +11,10 @@ from app.core.rbac import require_agent
 from app.models.user import User
 
 from app.schemas.ticket import TicketCreate, TicketOut, TicketAssignRequest, TicketTransitionRequest
+from app.schemas.tag import TagOut
 
 from app.services import tickets as ticket_service
+from app.services import tags as tag_service
 
 router = APIRouter()
 
@@ -60,3 +62,33 @@ def transition_ticket(
     actor: User = Depends(require_agent),
 ):
     return ticket_service.transition_ticket(db, ticket_id, payload.to_status, actor)
+
+
+@router.post("/{ticket_id}/tags/{tag_id}", response_model=TagOut)
+def attach_tag(
+    ticket_id: uuid.UUID,
+    tag_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    return tag_service.attach_tag_to_ticket(
+        db,
+        ticket_id=ticket_id,
+        tag_id=tag_id,
+        actor=current_user,
+    )
+
+
+@router.delete("/{ticket_id}/tags/{tag_id}", status_code=status.HTTP_204_NO_CONTENT)
+def detach_tag(
+    ticket_id: uuid.UUID,
+    tag_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    tag_service.detach_tag_from_ticket(
+        db,
+        ticket_id=ticket_id,
+        tag_id=tag_id,
+        actor=current_user,
+    )
