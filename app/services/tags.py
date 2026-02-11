@@ -17,7 +17,8 @@ def create_tag(db: Session, *, name: str, actor: User):
     normalized = _normalize_tag_name(name)
     existing = tag_crud.get_tag_by_name(db, normalized)
     if existing:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Tag already exists")
+        #raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Tag already exists")
+        return existing
     return tag_crud.create_tag(db, name=normalized)
 
 

@@ -2,5 +2,6 @@
 __pycache__/
 *.pyc
 .env
+.env.test
 ProjectPlan-TaskList.md
 ProjectPlan.md
