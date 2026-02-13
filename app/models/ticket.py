@@ -63,3 +63,5 @@ class Ticket(Base):
     # Relationships (optional for now, but useful)
     created_by = relationship("User", foreign_keys=[created_by_id])
     assigned_to = relationship("User", foreign_keys=[assigned_to_id])
+    comments = relationship("Comment", back_populates="ticket", cascade="all, delete-orphan",)
+    ticket_tags = relationship("TicketTag", back_populates="ticket", cascade="all, delete-orphan",)
