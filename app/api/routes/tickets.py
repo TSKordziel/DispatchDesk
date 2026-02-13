@@ -11,6 +11,7 @@ from app.core.rbac import require_agent
 from app.models.user import User
 
 from app.schemas.ticket import TicketCreate, TicketOut, TicketAssignRequest, TicketTransitionRequest
+from app.models.enums import TicketPriority, TicketStatus
 from app.schemas.tag import TagOut
 
 from app.services import tickets as ticket_service
@@ -39,10 +40,23 @@ def get_ticket(
 def list_tickets(
     limit: int = Query(20, ge=1, le=100),
     offset: int = Query(0, ge=0),
+    status: TicketStatus | None = Query(None),
+    priority: TicketPriority | None = Query(None),
+    assigned_to: uuid.UUID | None = Query(None),
+    tag: str | None = Query(None, min_length=1, max_length=100),
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
-    return ticket_service.list_tickets(db, limit=limit, offset=offset, actor=current_user)
+    return ticket_service.list_tickets(
+        db,
+        limit=limit,
+        offset=offset,
+        actor=current_user,
+        status=status,
+        priority=priority,
+        assigned_to_id=assigned_to,
+        tag=tag,
+    )
 
 @router.post("/{ticket_id}/assign", response_model=TicketOut)
 def assign_ticket(

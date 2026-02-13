@@ -9,8 +9,7 @@ from app.core.policy import can_view_ticket, can_assign, can_transition_ticket, 
 from app.crud import ticket as ticket_crud
 
 from app.models.user import User
-from app.models.enums import UserRole
-from app.models.enums import TicketStatus  # for type clarity
+from app.models.enums import UserRole, TicketStatus, TicketPriority
 
 from app.schemas.ticket import TicketCreate
 
@@ -33,9 +32,29 @@ def get_ticket(db: Session, ticket_id: uuid.UUID, actor: User):
 
     return ticket
 
-def list_tickets(db: Session, *, limit: int, offset: int, actor: User):
+def list_tickets(
+    db: Session,
+    *,
+    limit: int,
+    offset: int,
+    actor: User,
+    status: TicketStatus | None = None,
+    priority: TicketPriority | None = None,
+    assigned_to_id: uuid.UUID | None = None,
+    tag: str | None = None,
+):
     created_by_filter = actor.id if actor.role == UserRole.requester else None
-    return ticket_crud.list_tickets(db, limit=limit, offset=offset, created_by_id=created_by_filter)
+    normalized_tag = tag.strip().lower() if tag is not None else None
+    return ticket_crud.list_tickets(
+        db,
+        limit=limit,
+        offset=offset,
+        created_by_id=created_by_filter,
+        status=status,
+        priority=priority,
+        assigned_to_id=assigned_to_id,
+        tag=normalized_tag,
+    )
 
 def assign_ticket(db: Session, ticket_id: uuid.UUID, assignee_id: uuid.UUID, actor: User):
     ticket = ticket_crud.get_ticket(db, ticket_id)
