@@ -30,3 +30,6 @@ class TicketAssignRequest(BaseModel):
 
 class TicketTransitionRequest(BaseModel):
     to_status: TicketStatus
+
+class TicketPriorityRequest(BaseModel):
+    priority: TicketPriority

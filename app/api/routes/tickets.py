@@ -10,7 +10,14 @@ from app.core.rbac import require_agent
 
 from app.models.user import User
 
-from app.schemas.ticket import TicketCreate, TicketOut, TicketAssignRequest, TicketTransitionRequest
+from app.schemas.ticket import (
+    TicketCreate,
+    TicketOut,
+    TicketAssignRequest,
+    TicketTransitionRequest,
+    TicketPriorityRequest,
+)
+from app.models.enums import TicketPriority, TicketStatus
 from app.schemas.tag import TagOut
 
 from app.services import tickets as ticket_service
@@ -39,10 +46,25 @@ def get_ticket(
 def list_tickets(
     limit: int = Query(20, ge=1, le=100),
     offset: int = Query(0, ge=0),
+    status: TicketStatus | None = Query(None),
+    priority: TicketPriority | None = Query(None),
+    assigned_to: uuid.UUID | None = Query(None),
+    tag: str | None = Query(None, min_length=1, max_length=100),
+    q: str | None = Query(None, min_length=1, max_length=200),
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
-    return ticket_service.list_tickets(db, limit=limit, offset=offset, actor=current_user)
+    return ticket_service.list_tickets(
+        db,
+        limit=limit,
+        offset=offset,
+        actor=current_user,
+        status=status,
+        priority=priority,
+        assigned_to_id=assigned_to,
+        tag=tag,
+        q=q,
+    )
 
 @router.post("/{ticket_id}/assign", response_model=TicketOut)
 def assign_ticket(
@@ -62,6 +84,16 @@ def transition_ticket(
     actor: User = Depends(require_agent),
 ):
     return ticket_service.transition_ticket(db, ticket_id, payload.to_status, actor)
+
+
+@router.patch("/{ticket_id}/priority", response_model=TicketOut)
+def update_ticket_priority(
+    ticket_id: uuid.UUID,
+    payload: TicketPriorityRequest,
+    db: Session = Depends(get_db),
+    actor: User = Depends(require_agent),
+):
+    return ticket_service.update_priority(db, ticket_id, payload.priority, actor)
 
 
 @router.post("/{ticket_id}/tags/{tag_id}", response_model=TagOut)
