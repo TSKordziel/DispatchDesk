@@ -1,6 +1,6 @@
 import uuid
 from sqlalchemy.orm import Session
-from sqlalchemy import select
+from sqlalchemy import select, or_
 
 from app.models.tag import Tag
 from app.models.ticket_tag import TicketTag
@@ -28,6 +28,7 @@ def list_tickets(
     priority: TicketPriority | None = None,
     assigned_to_id: uuid.UUID | None = None,
     tag: str | None = None,
+    q: str | None = None,
 ) -> list[Ticket]:
     statement = select(Ticket).order_by(Ticket.created_at.desc()).limit(limit).offset(offset)
     if created_by_id is not None:
@@ -44,5 +45,13 @@ def list_tickets(
             .join(Tag, Tag.id == TicketTag.tag_id)
             .where(Tag.name == tag)
             .distinct()
+        )
+    if q is not None:
+        pattern = f"%{q}"
+        statement = statement.where(
+            or_(
+                Ticket.title.ilike(pattern),
+                Ticket.description.ilike(pattern),
+            )
         )
     return db.execute(statement).scalars().all()

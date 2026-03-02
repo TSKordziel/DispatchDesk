@@ -42,9 +42,11 @@ def list_tickets(
     priority: TicketPriority | None = None,
     assigned_to_id: uuid.UUID | None = None,
     tag: str | None = None,
+    q: str | None = None,
 ):
     created_by_filter = actor.id if actor.role == UserRole.requester else None
     normalized_tag = tag.strip().lower() if tag is not None else None
+    normalized_q = q.strip() if q is not None else None
     return ticket_crud.list_tickets(
         db,
         limit=limit,
@@ -54,6 +56,7 @@ def list_tickets(
         priority=priority,
         assigned_to_id=assigned_to_id,
         tag=normalized_tag,
+        q=normalized_q,
     )
 
 def assign_ticket(db: Session, ticket_id: uuid.UUID, assignee_id: uuid.UUID, actor: User):
@@ -83,6 +86,16 @@ def transition_ticket(db: Session, ticket_id: uuid.UUID, to_status: TicketStatus
         raise HTTPException(status_code=422, detail="Invalid transition or not allowed")
 
     apply_transition(ticket, to_status)
+    db.commit()
+    db.refresh(ticket)
+    return ticket
+
+def update_priority(db: Session, ticket_id: uuid.UUID, priority: TicketPriority, actor: User):
+    ticket = ticket_crud.get_ticket(db, ticket_id)
+    if ticket is None:
+        raise HTTPException(status_code=404, detail="Ticket not found")
+
+    ticket.priority = priority
     db.commit()
     db.refresh(ticket)
     return ticket
