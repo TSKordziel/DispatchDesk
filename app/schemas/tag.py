@@ -1,5 +1,5 @@
 import uuid
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class TagCreate(BaseModel):
@@ -7,8 +7,11 @@ class TagCreate(BaseModel):
 
 
 class TagOut(BaseModel):
+    model_config = ConfigDict(
+        from_attributes = True,
+    )
     id: uuid.UUID
     name: str
 
-    class Config:
-        from_attributes = True
+    # class Config:
+    #     from_attributes = True

@@ -1,9 +1,8 @@
 import uuid
-from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.core.policy import can_view_ticket
-from app.crud import ticket as ticket_crud
+from app.core.errors import not_found
+from app.core.permissions import get_ticket_or_404, require_can_view_ticket
 from app.crud import tag as tag_crud
 from app.crud import ticket_tag as ticket_tag_crud
 from app.models.user import User
@@ -23,16 +22,12 @@ def create_tag(db: Session, *, name: str, actor: User):
 
 
 def attach_tag_to_ticket(db: Session, *, ticket_id: uuid.UUID, tag_id: uuid.UUID, actor: User):
-    ticket = ticket_crud.get_ticket(db, ticket_id)
-    if ticket is None:
-        raise HTTPException(status_code=404, detail="Ticket not found")
-
-    if not can_view_ticket(actor, ticket):
-        raise HTTPException(status_code=403, detail="Forbidden")
+    ticket = get_ticket_or_404(db, ticket_id)
+    require_can_view_ticket(actor, ticket)
 
     tag = tag_crud.get_tag(db, tag_id)
     if tag is None:
-        raise HTTPException(status_code=404, detail="Tag not found")
+        not_found("Tag")
 
     existing = ticket_tag_crud.get_ticket_tag(db, ticket_id=ticket_id, tag_id=tag_id)
     if existing:
@@ -43,15 +38,11 @@ def attach_tag_to_ticket(db: Session, *, ticket_id: uuid.UUID, tag_id: uuid.UUID
 
 
 def detach_tag_from_ticket(db: Session, *, ticket_id: uuid.UUID, tag_id: uuid.UUID, actor: User) -> None:
-    ticket = ticket_crud.get_ticket(db, ticket_id)
-    if ticket is None:
-        raise HTTPException(status_code=404, detail="Ticket not found")
-
-    if not can_view_ticket(actor, ticket):
-        raise HTTPException(status_code=403, detail="Forbidden")
+    ticket = get_ticket_or_404(db, ticket_id)
+    require_can_view_ticket(actor, ticket)
 
     tag = tag_crud.get_tag(db, tag_id)
     if tag is None:
-        raise HTTPException(status_code=404, detail="Tag not found")
+        not_found("Tag")
 
     ticket_tag_crud.delete_ticket_tag(db, ticket_id=ticket_id, tag_id=tag_id)
