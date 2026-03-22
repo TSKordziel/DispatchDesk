@@ -47,7 +47,7 @@ def list_tickets(
             .distinct()
         )
     if q is not None:
-        pattern = f"%{q}"
+        pattern = f"%{q}%"
         statement = statement.where(
             or_(
                 Ticket.title.ilike(pattern),
