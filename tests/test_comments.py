@@ -56,6 +56,11 @@ def test_create_comment_forbidden_for_other_requester(client):
     )
 
     assert response.status_code == 403
+    payload = response.json()
+    assert "error" in payload
+    assert payload["error"]["code"] == "forbidden"
+    assert payload["error"]["request_id"]
+    assert response.headers.get("X-Request-ID") == payload["error"]["request_id"]
 
 
 def test_list_comments_returns_in_order(client):
