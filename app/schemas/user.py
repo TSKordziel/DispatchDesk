@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
 from app.models.user import UserRole
 
 
@@ -10,13 +10,16 @@ class UserCreate(BaseModel):
 
 
 class UserOut(BaseModel):
+    model_config = ConfigDict(
+        from_attributes = True,
+    )
     id: uuid.UUID
     email: EmailStr
     role: UserRole
     is_active: bool
 
-    class Config:
-        from_attributes = True
+    # class Config:
+    #     from_attributes = True
 
 
 class UserRoleUpdateRequest(BaseModel):

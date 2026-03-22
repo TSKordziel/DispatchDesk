@@ -2,9 +2,14 @@ import uuid
 
 from sqlalchemy.orm import Session
 
-from fastapi import HTTPException, status
-
-from app.core.policy import can_view_ticket, can_assign, can_transition_ticket, apply_transition
+from app.core.policy import apply_transition
+from app.core.permissions import (
+    get_ticket_or_404,
+    get_user_or_404,
+    require_can_assign,
+    require_can_transition,
+    require_can_view_ticket,
+)
 
 from app.crud import ticket as ticket_crud
 
@@ -23,13 +28,8 @@ def create_ticket(db: Session, payload: TicketCreate, actor: User):
     )
 
 def get_ticket(db: Session, ticket_id: uuid.UUID, actor: User):
-    ticket = ticket_crud.get_ticket(db, ticket_id)
-    if ticket is None:
-        raise HTTPException(status_code=404, detail="Ticket not found")
-
-    if not can_view_ticket(actor, ticket):
-        raise HTTPException(status_code=403, detail="Not authorized to view this ticket")
-
+    ticket = get_ticket_or_404(db, ticket_id)
+    require_can_view_ticket(actor, ticket)
     return ticket
 
 def list_tickets(
@@ -60,17 +60,9 @@ def list_tickets(
     )
 
 def assign_ticket(db: Session, ticket_id: uuid.UUID, assignee_id: uuid.UUID, actor: User):
-    ticket = ticket_crud.get_ticket(db, ticket_id)
-    if ticket is None:
-        raise HTTPException(status_code=404, detail="Ticket not found")
-    
-    assignee = db.get(User, assignee_id)
-    if assignee is None:
-        raise HTTPException(status_code=404, detail="Assignee not found")
-
-    if not can_assign(actor, assignee):
-        # If I want to differentiate invalid_assignee vs forbidden, make can_assign return a Decision
-        raise HTTPException(status_code=403, detail="Forbidden")
+    ticket = get_ticket_or_404(db, ticket_id)
+    assignee = get_user_or_404(db, assignee_id, resource="Assignee")
+    require_can_assign(actor, assignee)
 
     ticket.assigned_to_id = assignee.id
     db.commit()
@@ -78,12 +70,8 @@ def assign_ticket(db: Session, ticket_id: uuid.UUID, assignee_id: uuid.UUID, act
     return ticket
 
 def transition_ticket(db: Session, ticket_id: uuid.UUID, to_status: TicketStatus, actor: User):
-    ticket = ticket_crud.get_ticket(db, ticket_id)
-    if ticket is None:
-        raise HTTPException(status_code=404, detail="Ticket not found")
-
-    if not can_transition_ticket(actor, ticket, to_status):
-        raise HTTPException(status_code=422, detail="Invalid transition or not allowed")
+    ticket = get_ticket_or_404(db, ticket_id)
+    require_can_transition(actor, ticket, to_status)
 
     apply_transition(ticket, to_status)
     db.commit()
@@ -91,10 +79,7 @@ def transition_ticket(db: Session, ticket_id: uuid.UUID, to_status: TicketStatus
     return ticket
 
 def update_priority(db: Session, ticket_id: uuid.UUID, priority: TicketPriority, actor: User):
-    ticket = ticket_crud.get_ticket(db, ticket_id)
-    if ticket is None:
-        raise HTTPException(status_code=404, detail="Ticket not found")
-
+    ticket = get_ticket_or_404(db, ticket_id)
     ticket.priority = priority
     db.commit()
     db.refresh(ticket)

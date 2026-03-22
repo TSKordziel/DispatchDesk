@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from app.models.enums import TicketPriority, TicketStatus
 
@@ -11,6 +11,9 @@ class TicketCreate(BaseModel):
 
 
 class TicketOut(BaseModel):
+    model_config = ConfigDict(
+        from_attributes = True,
+    )
     id: uuid.UUID
     title: str
     description: str | None
@@ -22,8 +25,8 @@ class TicketOut(BaseModel):
     updated_at: datetime
     closed_at: datetime | None
 
-    class Config:
-        from_attributes = True
+    # class Config:
+    #     from_attributes = True
 
 class TicketAssignRequest(BaseModel):
     assignee_id: uuid.UUID

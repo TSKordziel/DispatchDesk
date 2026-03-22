@@ -1,12 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.orm import Session
 
-from app.core.deps import get_db
+from app.core.types import DbSession, CurrentUser
 from app.core.security import hash_password, verify_password
 from app.core.jwt import create_token
 from app.core.config import ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_MINUTES
-from app.core.auth import get_current_user
 from app.schemas.user import UserCreate, UserOut
 from app.schemas.auth import TokenPair
 from app.crud.user import get_user_by_email, create_user
@@ -14,7 +12,7 @@ from app.crud.user import get_user_by_email, create_user
 router = APIRouter()
 
 @router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
-def register(payload: UserCreate, db: Session = Depends(get_db)):
+def register(payload: UserCreate, db: DbSession):
     email = payload.email.strip().lower()
 
     existing = get_user_by_email(db, email)
@@ -26,7 +24,7 @@ def register(payload: UserCreate, db: Session = Depends(get_db)):
     return user
 
 @router.post("/login", response_model=TokenPair)
-def login(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+def login(db: DbSession, form: OAuth2PasswordRequestForm = Depends()):
     email = form.username.strip().lower()  # OAuth2 form uses 'username' field
     user = get_user_by_email(db, email)
 
@@ -39,5 +37,5 @@ def login(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get
     return TokenPair(access_token=access, refresh_token=refresh)
 
 @router.get("/me", response_model=UserOut)
-def me(user=Depends(get_current_user)):
+def me(user: CurrentUser):
     return user
